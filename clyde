@@ -26,15 +26,19 @@ then
 			rm -rf $CLYDE_TMP # Should be fine since there's no chroot yet
 			exit
 	fi
-	# Clone and make a chroot
-	git clone $URL
+	git clone $URL # clone
+	
+	# install dependencies
+	cd $PACKAGE
+	makepkg -s
+	
+	# chroot
 	mkarchroot ./$CHROOT/root base-devel > /dev/null
 	arch-nspawn ./$CHROOT/root pacman -Syu > /dev/null
 
-	# Build
-	cd $PACKAGE
-	makechrootpkg -c -r ~/$CLYDE_TMP/$CHROOT
-	
+	makechrootpkg -c -r ~/$CLYDE_TMP/$CHROOT # build
+	$SUDO pacman -U ~/$CLYDE_TMP/$PACKAGE/$PACKAGE-*-.pkg.tar.zst # install
+
 	# Clean up
 	cd ~
 	$SUDO rm -rf $CLYDE_TMP
