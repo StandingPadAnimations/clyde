@@ -1,8 +1,6 @@
 #!/bin/bash
 
 CLYDE_TMP=clyde-tmp
-CHROOT=chroot
-USE_CHROOT=0
 PACKAGE="$2"
 SUDO=doas
 
@@ -37,24 +35,10 @@ then
 		git clone $URL # clone
 		cd $PACKAGE
 		
-		$EDITOR ./PKGBUILD
-		if [ "$USE_CHROOT" -eq 1 ] 
-		then
-			echo "Making chroot..."
-			mkarchroot ~/$CLYDE_TMP/$CHROOT/root base-devel > /dev/null
-			arch-nspawn ~/$CLYDE_TMP/$CHROOT/root pacman -Syu > /dev/null
-
-			echo "Building..."
-			makechrootpkg -c -r ~/$CLYDE_TMP/$CHROOT # build
-			grep ~/$CLYDE_TMP/$PACKAGE/$PACKAGE-*.pkg.tar.zst | $SUDO pacman -U  # install
-			cd ~
-			$SUDO rm -rf $CLYDE_TMP
-		else
-			makepkg -si
-			grep ~/$CLYDE_TMP/$PACKAGE/$PACKAGE-*.pkg.tar.zst | $SUDO pacman -U  # install
-			cd ~
-			rm -rf $CLYDE_TMP
-		fi
+		$EDITOR ~/$CLYDE_TMP/$PACKAGE/PKGBUILD
+		makepkg -si
+		cd ~
+		rm -rf $CLYDE_TMP
 
 		# Clean up
 		echo "Cleaning up..."
