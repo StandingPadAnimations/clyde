@@ -2,7 +2,7 @@
 
 CLYDE_TMP=clyde-tmp
 PACKAGE="$2"
-SUDO=doas
+SUDO=sudo
 
 if [[ "${1-}" =~ ^-*h(elp)?$ ]]; then
 	echo 'Usage: '
