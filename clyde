@@ -1,9 +1,14 @@
-#!bin/bash
+#!/bin/bash
 
 CLYDE_TMP=clyde-tmp
 CHROOT=chroot
 PACKAGE="$2"
 SUDO=doas
+
+if [[ "${1-}" =~ ^-*h(elp)?$ ]]; then
+	echo 'Usage: insert some useful help statement that ill probably use chatgpt to write later on lmao'
+	exit
+fi
 
 cd ~
 if [ "$1" = "install" ]
@@ -14,34 +19,35 @@ then
 	cd $CLYDE_TMP
 
 	# Check if package exists
-	#if ! curl -s --head  --request GET ${URL} | grep "404 Not Found" > /dev/null
-	#then
-	#       echo "Package ${PACKAGE} not found"
-	#fi
-	
-	read -p "Install ${PACKAGE}? [y/N]: " OPTION
-	if [ "$OPTION" = "n" ] || [ "$OPTION" = "N" ]
+	if curl -s --request GET "https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=$PACKAGE" | grep '"resultcount":0' > /dev/null
 	then
-		echo "Canceled by the user! Exiting..."
-		rm -rf $CLYDE_TMP # Should be fine since there's no chroot yet
-		exit
+	       echo "Package ${PACKAGE} not found"
+	       exit
+	else
+		read -p "Install ${PACKAGE}? [y/N]: " $OPTION
+		if [[ "{$OPTION}" == "n" || "{$OPTION}" == "N" ]]
+		then
+			echo "Canceled by the user! Exiting..."
+			rm -rf $CLYDE_TMP # Should be fine since there's no chroot yet
+			exit
+		fi
+		git clone $URL # clone
+		cd $PACKAGE
+
+		echo "Making chroot..."
+		# chroot
+		mkarchroot ~/$CLYDE_TMP/$CHROOT/root base-devel > /dev/null
+		arch-nspawn ~/$CLYDE_TMP/$CHROOT/root pacman -Syu > /dev/null
+
+		echo "Building..."
+		makechrootpkg -c -r ~/$CLYDE_TMP/$CHROOT # build
+		$SUDO pacman -U ~/$CLYDE_TMP/$PACKAGE/$PACKAGE-*.pkg.tar.zst # install
+
+		# Clean up
+		echo "Cleaning up..."
+		cd ~
+		$SUDO rm -rf $CLYDE_TMP
 	fi
-	
-	git clone $URL # clone
-	cd $PACKAGE
-
-	echo "Making chroot..."
-	# chroot
-	mkarchroot ~/$CLYDE_TMP/$CHROOT/root base-devel > /dev/null
-	arch-nspawn ~/$CLYDE_TMP/$CHROOT/root pacman -Syu > /dev/null
-
-	echo "Building..."
-	makechrootpkg -c -r ~/$CLYDE_TMP/$CHROOT # build
-	$SUDO pacman -U ~/$CLYDE_TMP/$PACKAGE/$PACKAGE-*-.pkg.tar.zst # install
-
-	# Clean up
-	cd ~
-	$SUDO rm -rf $CLYDE_TMP
 fi
 
 if [ "$1" = "yeet" ]
