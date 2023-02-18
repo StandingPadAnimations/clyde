@@ -16,8 +16,6 @@ if [ "$1" = "install" ]
 then
 	URL=https://aur.archlinux.org/$PACKAGE.git
 	OPTION="n"
-	mkdir -p $CLYDE_TMP/$CHROOT
-	cd $CLYDE_TMP
 
 	# Check if package exists
 	if curl -s --request GET "https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=$PACKAGE" | grep '"resultcount":0' > /dev/null
@@ -25,6 +23,8 @@ then
 	       echo "Package ${PACKAGE} not found"
 	       exit
 	else
+		mkdir -p $CLYDE_TMP/$CHROOT
+		cd $CLYDE_TMP
 		read -p "Install ${PACKAGE}? [y/N]: " $OPTION
 		if [[ "{$OPTION}" == "n" || "{$OPTION}" == "N" ]]
 		then
@@ -34,7 +34,8 @@ then
 		fi
 		git clone $URL # clone
 		cd $PACKAGE
-
+		
+		$EDITOR ./PKGBUILD
 		if [ "$USE_CHROOT" -eq 1 ] 
 		then
 			echo "Making chroot..."
@@ -44,15 +45,17 @@ then
 			echo "Building..."
 			makechrootpkg -c -r ~/$CLYDE_TMP/$CHROOT # build
 			grep ~/$CLYDE_TMP/$PACKAGE/$PACKAGE-*.pkg.tar.zst | $SUDO pacman -U  # install
+			cd ~
+			$SUDO rm -rf $CLYDE_TMP
 		else
 			makepkg -si
 			grep ~/$CLYDE_TMP/$PACKAGE/$PACKAGE-*.pkg.tar.zst | $SUDO pacman -U  # install
+			cd ~
+			rm -rf $CLYDE_TMP
 		fi
 
 		# Clean up
 		echo "Cleaning up..."
-		cd ~
-		$SUDO rm -rf $CLYDE_TMP
 	fi
 fi
 
@@ -60,4 +63,3 @@ if [ "$1" = "yeet" ]
 then 
 	$SUDO pacman -Rn $PACKAGE
 fi
-
