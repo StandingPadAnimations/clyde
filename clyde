@@ -6,13 +6,13 @@ SUDO=doas
 
 if [[ "${1-}" =~ ^-*h(elp)?$ ]]; then
 	echo 'Usage: '
-	echo "install [PACKAGE]: Installs a package"
-	echo "yeet [PACKAGE]: Removes a package"
+	echo "install/ins [PACKAGE]: Installs a package"
+	echo "yeet/remove/rm [PACKAGE]: Removes a package"
 	exit
 fi
 
 cd ~
-if [ "$1" = "install" ]
+if [[ "{$1}" = "install" || "{$1}" = "ins" ]]
 then
 	URL=https://aur.archlinux.org/$PACKAGE.git
 	OPTION="n"
@@ -43,9 +43,9 @@ then
 		# Clean up
 		echo "Cleaning up..."
 	fi
-fi
-
-if [ "$1" = "yeet" ]
+elif [[ "{$1}" = "yeet" || "{$1}" = "remove "] ||  "{$1}" = "rm" ]]
 then 
 	$SUDO pacman -Rn $PACKAGE
+else
+	echo "Unreconized argument!"
 fi
