@@ -18,14 +18,15 @@ then
 	#then
 	#       echo "Package ${PACKAGE} not found"
 	#fi
-	else
-		read -p "Install ${PACKAGE}? [y/N]: " $OPTION
-		if [ $OPTION = "n" || $OPTION = "N" ]
-		then
-			echo "Canceled by the user! Exiting..."
-			rm -rf $CLYDE_TMP # Should be fine since there's no chroot yet
-			exit
+	
+	read -p "Install ${PACKAGE}? [y/N]: " $OPTION
+	if [ $OPTION = "n" ] || [ $OPTION = "N" ]
+	then
+		echo "Canceled by the user! Exiting..."
+		rm -rf $CLYDE_TMP # Should be fine since there's no chroot yet
+		exit
 	fi
+	
 	git clone $URL # clone
 	
 	# install dependencies
