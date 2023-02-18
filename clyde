@@ -12,7 +12,7 @@ if [[ "${1-}" =~ ^-*h(elp)?$ ]]; then
 fi
 
 cd ~
-if [[ "{$1}" = "install" || "{$1}" = "ins" ]]
+if [[ "$1" = "install" || "$1" = "ins" ]]
 then
 	URL=https://aur.archlinux.org/$PACKAGE.git
 	OPTION="n"
@@ -43,7 +43,7 @@ then
 		# Clean up
 		echo "Cleaning up..."
 	fi
-elif [[ "{$1}" = "yeet" || "{$1}" = "remove "] ||  "{$1}" = "rm" ]]
+elif [[ "$1" = "yeet" || "$1" = "remove "] ||  "$1" = "rm" ]]
 then 
 	$SUDO pacman -Rn $PACKAGE
 else
