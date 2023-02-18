@@ -30,10 +30,12 @@ then
 	git clone $URL # clone
 	cd $PACKAGE
 
+	echo "Making chroot..."
 	# chroot
-	mkarchroot ./$CHROOT/root base-devel > /dev/null
-	arch-nspawn ./$CHROOT/root pacman -Syu > /dev/null
+	mkarchroot ~/$CLYDE_TMP/$CHROOT/root base-devel > /dev/null
+	arch-nspawn ~/$CLYDE_TMP/$CHROOT/root pacman -Syu > /dev/null
 
+	echo "Building..."
 	makechrootpkg -c -r ~/$CLYDE_TMP/$CHROOT # build
 	$SUDO pacman -U ~/$CLYDE_TMP/$PACKAGE/$PACKAGE-*-.pkg.tar.zst # install
 
