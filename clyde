@@ -7,7 +7,9 @@ PACKAGE="$2"
 SUDO=doas
 
 if [[ "${1-}" =~ ^-*h(elp)?$ ]]; then
-	echo 'Usage: insert some useful help statement that ill probably use chatgpt to write later on lmao'
+	echo 'Usage: '
+	echo "install [PACKAGE]: Installs a package"
+	echo "yeet [PACKAGE]: Removes a package"
 	exit
 fi
 
