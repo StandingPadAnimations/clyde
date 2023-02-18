@@ -1,19 +1,15 @@
 #!/bin/bash
 
 CLYDE_TMP=clyde-tmp
-PACKAGE="$2"
 SUDO=sudo
 
-if [[ "${1-}" =~ ^-*h(elp)?$ ]]; then
-	echo 'Usage: '
-	echo "install/ins [PACKAGE]: Installs a package"
-	echo "yeet/remove/rm [PACKAGE]: Removes a package"
+function clean_up () {
+	rm -rf $CLYDE_TMP 
 	exit
-fi
+}
 
-cd ~
-if [[ "$1" = "install" || "$1" = "ins" ]]
-then
+function build_aur_pkg () {
+	PACKAGE="$1"
 	URL=https://aur.archlinux.org/$PACKAGE.git
 	OPTION="n"
 
@@ -23,27 +19,39 @@ then
 	       echo "Package ${PACKAGE} not found"
 	       exit
 	else
-		mkdir -p $CLYDE_TMP/$CHROOT
+		mkdir $CLYDE_TMP
 		cd $CLYDE_TMP
 		read -p "Install ${PACKAGE}? [y/N]: " $OPTION
-		if [[ "{$OPTION}" == "n" || "{$OPTION}" == "N" ]]
+		if [[ "$OPTION" == "n" || "$OPTION" == "N" ]]
 		then
 			echo "Canceled by the user! Exiting..."
-			rm -rf $CLYDE_TMP # Should be fine since there's no chroot yet
-			exit
+			clean_up
 		fi
 		git clone $URL # clone
 		cd $PACKAGE
 		
 		$EDITOR ~/$CLYDE_TMP/$PACKAGE/PKGBUILD
 		makepkg -si
-		cd ~
-		rm -rf $CLYDE_TMP
-
+		
 		# Clean up
+		cd ~
 		echo "Cleaning up..."
+		clean_up
 	fi
-elif [[ "$1" = "yeet" || "$1" = "remove "] ||  "$1" = "rm" ]]
+}
+
+if [[ "${1-}" =~ ^-*h(elp)?$ ]]; then
+	echo 'Usage: '
+	echo "install/ins [PACKAGE]: Installs a package"
+	echo "yeet/remove/rm [PACKAGE]: Removes a package"
+	exit
+fi
+
+cd ~
+if [[ "$1" = "install" || "$1" = "ins" ]] 
+then
+	build_aur_pkg "$2"
+elif [[ "$1" = "yeet" || "$1" = "remove "] ||  "$1" = "rm" ]] 
 then 
 	$SUDO pacman -Rn $PACKAGE
 else
