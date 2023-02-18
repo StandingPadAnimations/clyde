@@ -19,8 +19,8 @@ then
 	#       echo "Package ${PACKAGE} not found"
 	#fi
 	
-	read -p "Install ${PACKAGE}? [y/N]: " $OPTION
-	if [ $OPTION = "n" ] || [ $OPTION = "N" ]
+	read -p "Install ${PACKAGE}? [y/N]: " OPTION
+	if [ "$OPTION" = "n" ] || [ "$OPTION" = "N" ]
 	then
 		echo "Canceled by the user! Exiting..."
 		rm -rf $CLYDE_TMP # Should be fine since there's no chroot yet
@@ -28,11 +28,8 @@ then
 	fi
 	
 	git clone $URL # clone
-	
-	# install dependencies
 	cd $PACKAGE
-	makepkg -s
-	
+
 	# chroot
 	mkarchroot ./$CHROOT/root base-devel > /dev/null
 	arch-nspawn ./$CHROOT/root pacman -Syu > /dev/null
