@@ -72,6 +72,10 @@ function clone_aur_pkg () {
 }
 
 function upgrade_pkgs () {
+	if [ "$PACKAGE" != "" ]
+	then 
+		clone_aur_pkg
+	fi
 	LOCAL_PKGS=$(pacman -Qm | cut -f 1 -d " ") # not technically accurate, but accurate enough
 	AMOUNT_UPDATED=0
 	array=($LOCAL_PKGS)
