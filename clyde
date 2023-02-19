@@ -25,11 +25,11 @@ function check_version () {
 		# Compare the versions
 		INSTALLED_VERSION=$(pacman -Qi $PACKAGE | grep -Po '^Version\s*: \K.+')
 		REMOTE_VERSION=$(curl -s $1 | jq '.["results"][0]["Version"]' | sed -e 's/^"//' -e 's/"$//')
-		if [ $INSTALLED_VERSION = $REMOTE_VERSION ]
-		then 
+		if [ "$INSTALLED_VERSION" = "$REMOTE_VERSION" ]
+		then
 			echo 0
 		else
-			echo 1
+			echo "Found update for ${PACKAGE} from ${INSTALLED_VERSION} to ${REMOTE_VERSION}"
 		fi
 	else
 		echo 0
@@ -74,7 +74,8 @@ function clone_aur_pkg () {
 function upgrade_pkgs () {
 	LOCAL_PKGS=$(pacman -Qm | cut -f 1 -d " ") # not technically accurate, but accurate enough
 	AMOUNT_UPDATED=0
-	for element in "${LOCAL_PKGS[@]}"
+	array=($LOCAL_PKGS)
+	for element in "${array[@]}"
 	do 
 		PACKAGE="${element}"
 		PKG_INFO_URL="https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=$PACKAGE"
