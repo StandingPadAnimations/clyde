@@ -19,6 +19,4 @@ pkgver() {
 
 package () {
 	install -D -t "$pkgdir/usr/bin" "$_pkgname/clyde"
-	install -Dm755 $_pkgname-completion.sh \
-		"$pkgdir/usr/share/bash-completion/completions/$_pkgname-bash-completion.sh"
 }
