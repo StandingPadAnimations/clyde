@@ -21,8 +21,8 @@ function build_aur_pkg () {
 	       exit
 	else
 		# Check if package exists
-		PKG_EXISTS=$(pacman -Qi $PACKAGE > /dev/null)
-		if [ $PKG_EXISTS -eq 0 ] 
+		pacman -Qi $PACKAGE > /dev/null
+		if [ $? = 0 ] 
 		then
 			# Compare the versions
 			INSTALLED_VERSION=$(pacman -Qi $PACKAGE | grep -Po '^Version\s*: \K.+')
