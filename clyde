@@ -102,6 +102,7 @@ if [[ "${1-}" =~ ^-*h(elp)?$ ]]; then
 	echo 'Usage: '
 	echo "install/ins [PACKAGE]: Installs a package"
 	echo "yeet/remove/rm [PACKAGE]: Removes a package"
+	echo "upgrade/upg [OPTIONAL_PACKAGE]: Checks if AUR packages can update, or if the specificed package can update"
 	exit
 fi
 

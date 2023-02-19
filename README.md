@@ -12,6 +12,7 @@ Just add the bash script to your path, it's that easy
 ## How to use
 * `install`/`ins` : Install a package
 * `yeet`/`remove`/`rm`: Remove a package
+* `upgrade`/`upg`: Upgrade either all AUR packages or just the specified one
 * `help`: help
 
 So simple, I know
