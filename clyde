@@ -2,14 +2,21 @@
 
 CLYDE_TMP=clyde-tmp
 SUDO=sudo
+PACKAGE="$2"
 
 function clean_up () {
 	rm -rf $CLYDE_TMP 
 	exit
 }
 
-function build_aur_pkg () {
-	PACKAGE="$1"
+function build_pkg () {
+	git clone $1 # clone
+	cd $PACKAGE
+	$EDITOR ~/$CLYDE_TMP/$PACKAGE/PKGBUILD
+	makepkg -si
+}
+
+function clone_aur_pkg () {
 	PKG_GIT_URL="https://aur.archlinux.org/$PACKAGE.git"
 	PKG_INFO_URL="https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=$PACKAGE"
 	OPTION="n"
@@ -22,7 +29,7 @@ function build_aur_pkg () {
 	else
 		# Check if package exists
 		pacman -Qi $PACKAGE > /dev/null
-		if [ $? = 0 ] 
+		if [ $? -eq 0 ] 
 		then
 			# Compare the versions
 			INSTALLED_VERSION=$(pacman -Qi $PACKAGE | grep -Po '^Version\s*: \K.+')
@@ -35,18 +42,15 @@ function build_aur_pkg () {
 		fi	
 		mkdir $CLYDE_TMP
 		cd $CLYDE_TMP
-		read -p "Install ${PACKAGE}? [y/N]: " $OPTION
+		read -p "Install ${PACKAGE}? [y/N]: " OPTION
 		if [[ "$OPTION" == "n" || "$OPTION" == "N" ]]
 		then
 			echo "Canceled by the user! Exiting..."
 			clean_up
 		fi
-		git clone $PKG_GIT_URL # clone
-		cd $PACKAGE
 		
-		$EDITOR ~/$CLYDE_TMP/$PACKAGE/PKGBUILD
-		makepkg -si
-		
+		build_pkg $PKG_GIT_URL
+
 		# Clean up
 		cd ~
 		echo "Cleaning up..."
@@ -64,7 +68,7 @@ fi
 cd ~
 if [[ "$1" = "install" || "$1" = "ins" ]] 
 then
-	build_aur_pkg "$2"
+	clone_aur_pkg $PACKAGE
 elif [[ "$1" = "yeet" || "$1" = "remove "] ||  "$1" = "rm" ]] 
 then 
 	$SUDO pacman -Rn $PACKAGE
