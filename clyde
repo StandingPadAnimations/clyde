@@ -5,6 +5,7 @@ SUDO=sudo
 PACKAGE="$2"
 
 function clean_up () {
+	cd ~
 	rm -rf $CLYDE_TMP 
 	exit
 }
@@ -14,6 +15,25 @@ function build_pkg () {
 	cd $PACKAGE
 	$EDITOR ~/$CLYDE_TMP/$PACKAGE/PKGBUILD
 	makepkg -si
+}
+
+function check_version () {
+	# Check if package exists
+	pacman -Qi $PACKAGE > /dev/null
+	if [ $? -eq 0 ] 
+	then
+		# Compare the versions
+		INSTALLED_VERSION=$(pacman -Qi $PACKAGE | grep -Po '^Version\s*: \K.+')
+		REMOTE_VERSION=$(curl -s $1 | jq '.["results"][0]["Version"]' | sed -e 's/^"//' -e 's/"$//')
+		if [ $INSTALLED_VERSION = $REMOTE_VERSION ]
+		then 
+			echo 0
+		else
+			echo 1
+		fi
+	else
+		echo 0
+	fi
 }
 
 function clone_aur_pkg () {
@@ -27,19 +47,12 @@ function clone_aur_pkg () {
 	       echo "Package ${PACKAGE} not found"
 	       exit
 	else
-		# Check if package exists
-		pacman -Qi $PACKAGE > /dev/null
-		if [ $? -eq 0 ] 
-		then
-			# Compare the versions
-			INSTALLED_VERSION=$(pacman -Qi $PACKAGE | grep -Po '^Version\s*: \K.+')
-			REMOTE_VERSION=$(curl -s $PKG_INFO_URL | jq '.["results"][0]["Version"]' | sed -e 's/^"//' -e 's/"$//')
-			if [ $INSTALLED_VERSION = $REMOTE_VERSION ]
-			then 
-				echo "Package already up to date!"
-				exit
-			fi
-		fi	
+		IS_UP_TO_DATE=$(check_version $PKG_INFO_URL)
+		if [ "${IS_UP_TO_DATE}" = 0 ]
+		then 
+			echo "Package already up to date"
+			exit
+		fi
 		mkdir $CLYDE_TMP
 		cd $CLYDE_TMP
 		read -p "Install ${PACKAGE}? [y/N]: " OPTION
@@ -58,6 +71,28 @@ function clone_aur_pkg () {
 	fi
 }
 
+function upgrade_pkgs () {
+	LOCAL_PKGS=$(pacman -Qm | cut -f 1 -d " ") # not technically accurate, but accurate enough
+	AMOUNT_UPDATED=0
+	for element in "${LOCAL_PKGS[@]}"
+	do 
+		PACKAGE="${element}"
+		PKG_INFO_URL="https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=$PACKAGE"
+		NEEDS_UPDATE=$(check_version $PKG_INFO_URL)
+		if [[ "${NEEDS_UPDATE}" = 1 ]]
+		then 
+			clone_aur_pkg
+			AMOUNT_UPDATED=$AMOUNT_UPDATED+1
+		fi
+	done
+	if [[ AMOUNT_UPDATED -eq 0 ]]
+	then 
+		echo "No packages to update"
+	else
+		echo "Updated ${AMOUNT_UPDATED} packages"
+	fi
+}
+
 if [[ "${1-}" =~ ^-*h(elp)?$ ]]; then
 	echo 'Usage: '
 	echo "install/ins [PACKAGE]: Installs a package"
@@ -68,7 +103,10 @@ fi
 cd ~
 if [[ "$1" = "install" || "$1" = "ins" ]] 
 then
-	clone_aur_pkg $PACKAGE
+	clone_aur_pkg
+elif [[ "$1" = "upgrade" || "$1" = "upg" ]]
+then
+	upgrade_pkgs
 elif [[ "$1" = "yeet" || "$1" = "remove "] ||  "$1" = "rm" ]] 
 then 
 	$SUDO pacman -Rn $PACKAGE
