@@ -1,4 +1,4 @@
-_clyde()
+_clyde_completions()
 {
   LOCAL_PKGS=$(pacman -Qm | cut -f 1 -d " ") # Do it once to get it out of the way
   ARG="${COMP_WORDS[1]}"
@@ -8,4 +8,4 @@ _clyde()
   fi
   compgen -W "install remove upgrade help" "${COMP_WORDS[1]}"
 }
-complete -F _clyde -o bashdefault -o default clyde
+complete -F _clyde_completions clyde
