@@ -20,9 +20,11 @@ function build_aur_pkg () {
 	       echo "Package ${PACKAGE} not found"
 	       exit
 	else
+		# Check if package exists
 		PKG_EXISTS=$(pacman -Qi $PACKAGE > /dev/null)
-		if [ $? -eq 0 ] 
+		if [ $PKG_EXISTS -eq 0 ] 
 		then
+			# Compare the versions
 			INSTALLED_VERSION=$(pacman -Qi $PACKAGE | grep -Po '^Version\s*: \K.+')
 			REMOTE_VERSION=$(curl -s $PKG_INFO_URL | jq '.["results"][0]["Version"]' | sed -e 's/^"//' -e 's/"$//')
 			if [ $INSTALLED_VERSION = $REMOTE_VERSION ]
