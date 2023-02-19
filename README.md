@@ -1,5 +1,5 @@
 # Clyde
-A basic AUR helper written in less than 100 lines of bash code
+A basic AUR helper written in less than 200 lines of bash code
 
 ## Why?
 Most AUR helpers attempt to act like pacman in many ways, which some people don't really like (like myself). At the same time, many AUR helpers are also very complex, making editing them a nightmare.
