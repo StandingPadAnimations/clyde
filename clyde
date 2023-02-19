@@ -10,15 +10,27 @@ function clean_up () {
 
 function build_aur_pkg () {
 	PACKAGE="$1"
-	URL=https://aur.archlinux.org/$PACKAGE.git
+	PKG_GIT_URL="https://aur.archlinux.org/$PACKAGE.git"
+	PKG_INFO_URL="https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=$PACKAGE"
 	OPTION="n"
 
 	# Check if package exists
-	if curl -s --request GET "https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=$PACKAGE" | grep '"resultcount":0' > /dev/null
+	if curl -s --request GET $PKG_INFO_URL | grep '"resultcount":0' > /dev/null
 	then
 	       echo "Package ${PACKAGE} not found"
 	       exit
 	else
+		PKG_EXISTS=$(pacman -Qi $PACKAGE > /dev/null)
+		if [ $? -eq 0 ] 
+		then
+			INSTALLED_VERSION=$(pacman -Qi $PACKAGE | grep -Po '^Version\s*: \K.+')
+			REMOTE_VERSION=$(curl -s $PKG_INFO_URL | jq '.["results"][0]["Version"]' | sed -e 's/^"//' -e 's/"$//')
+			if [ $INSTALLED_VERSION = $REMOTE_VERSION ]
+			then 
+				echo "Package already up to date!"
+				exit
+			fi
+		fi	
 		mkdir $CLYDE_TMP
 		cd $CLYDE_TMP
 		read -p "Install ${PACKAGE}? [y/N]: " $OPTION
@@ -27,7 +39,7 @@ function build_aur_pkg () {
 			echo "Canceled by the user! Exiting..."
 			clean_up
 		fi
-		git clone $URL # clone
+		git clone $PKG_GIT_URL # clone
 		cd $PACKAGE
 		
 		$EDITOR ~/$CLYDE_TMP/$PACKAGE/PKGBUILD
