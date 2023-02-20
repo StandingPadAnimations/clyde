@@ -1,4 +1,4 @@
-#compdef clyde
+#compdef _clyde clyde
 
 _ls_packages() {
   LOCAL_PKGS=$(pacman -Qm | cut -f 1 -d " ") # Do it once to get it out of the way
@@ -22,11 +22,9 @@ _clyde() {
     (args)
       case $line[1] in
         (remove|rm|yeet|upgrade|upg)
-              _remove_cmd
+              _ls_packages
               ;;
       esac
       ;;
   esac
 }
-
-compdef _clyde clyde
