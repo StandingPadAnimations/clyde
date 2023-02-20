@@ -4,12 +4,6 @@ CLYDE_TMP=$(mktemp -d)
 SUDO=sudo
 PACKAGE="$2"
 
-function clean_up () {
-	cd "$HOME" || exit
-	rm -rf $CLYDE_TMP
-	exit
-}
-
 function build_pkg () {
 	git clone "$1" # clone
 	cd "$PACKAGE" || exit
@@ -51,15 +45,9 @@ function clone_aur_pkg () {
 		if [[ "$OPTION" == "n" || "$OPTION" == "N" ]]
 		then
 			echo "Canceled by the user! Exiting..."
-			clean_up
 		fi
 
 		build_pkg "$PKG_GIT_URL"
-
-		# Clean up
-		cd "$HOME" || exit
-		echo "Cleaning up..."
-		clean_up
 	fi
 }
 
