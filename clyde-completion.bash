@@ -1,6 +1,6 @@
 _clyde()
 {
-  LOCAL_PKGS=$(pacman -Qm | cut -f 1 -d " ") # Do it once to get it out of the way
+  LOCAL_PKGS=$(pacman -Qqm)
   ARG="${COMP_WORDS[1]}"
   if [[ "$ARG" = "remove" || "$ARG" = "rm" || "$ARG" = "yeet" || "$ARG" = "upgrade" || "$ARG" = "upg" ]]; then
     COMPREPLY=($(compgen -W "$LOCAL_PKGS" "${COMP_WORDS[2]}"))

@@ -1,7 +1,7 @@
 #compdef _clyde clyde
 
 _ls_packages() {
-  LOCAL_PKGS=$(pacman -Qm | cut -f 1 -d " ") # Do it once to get it out of the way
+  LOCAL_PKGS=$(pacman -Qqm)
   _arguments "1:profiles:($LOCAL_PKGS)"
 }
 
