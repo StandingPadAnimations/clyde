@@ -1,19 +1,19 @@
 #!/bin/bash
 
-CLYDE_TMP=clyde-tmp
+CLYDE_TMP=`mktemp -d`
 SUDO=sudo
 PACKAGE="$2"
 
 function clean_up () {
 	cd "$HOME" || exit
-	rm -rf $CLYDE_TMP 
+	rm -rf $CLYDE_TMP
 	exit
 }
 
 function build_pkg () {
 	git clone "$1" # clone
 	cd "$PACKAGE" || exit
-	$EDITOR "$HOME/$CLYDE_TMP/$PACKAGE/PKGBUILD"
+	$EDITOR "$CLYDE_TMP/$PACKAGE/PKGBUILD"
 	makepkg -si
 }
 
@@ -48,11 +48,11 @@ function clone_aur_pkg () {
 	else
 		IS_UP_TO_DATE=$(check_version "$PKG_INFO_URL")
 		if [ "${IS_UP_TO_DATE}" = 0 ]
-		then 
+		then
 			echo "Package already up to date"
 			exit
 		fi
-		mkdir "$CLYDE_TMP"
+
 		cd "$CLYDE_TMP" || exit
 		read -r -p "Install ${PACKAGE}? [y/N]: " OPTION
 		if [[ "$OPTION" == "n" || "$OPTION" == "N" ]]
@@ -60,7 +60,7 @@ function clone_aur_pkg () {
 			echo "Canceled by the user! Exiting..."
 			clean_up
 		fi
-		
+
 		build_pkg "$PKG_GIT_URL"
 
 		# Clean up
@@ -72,25 +72,25 @@ function clone_aur_pkg () {
 
 function upgrade_pkgs () {
 	if [ "$PACKAGE" != "" ]
-	then 
+	then
 		clone_aur_pkg
 	fi
 	LOCAL_PKGS=$(pacman -Qm | cut -f 1 -d " ") # not technically accurate, but accurate enough
 	AMOUNT_UPDATED=0
 	array=("$LOCAL_PKGS")
 	for element in ${array[@]}
-	do 
+	do
 		PACKAGE="${element}"
 		PKG_INFO_URL="https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=$PACKAGE"
 		NEEDS_UPDATE=$(check_version "$PKG_INFO_URL")
 		if [[ "${NEEDS_UPDATE}" = 1 ]]
-		then 
+		then
 			AMOUNT_UPDATED=$AMOUNT_UPDATED+1
 			clone_aur_pkg
 		fi
 	done
 	if [[ AMOUNT_UPDATED -eq 0 ]]
-	then 
+	then
 		echo "No packages to update"
 	else
 		echo "Updated ${AMOUNT_UPDATED} packages"
@@ -106,7 +106,7 @@ if [[ "${1-}" =~ ^-*h(elp)?$ ]]; then
 fi
 
 cd "$HOME" || exit
-case "$1" in 
+case "$1" in
 	"install"|"ins")
 		clone_aur_pkg
 	;;
