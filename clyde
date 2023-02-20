@@ -78,7 +78,7 @@ function upgrade_pkgs () {
 	LOCAL_PKGS=$(pacman -Qm | cut -f 1 -d " ") # not technically accurate, but accurate enough
 	AMOUNT_UPDATED=0
 	array=("$LOCAL_PKGS")
-	for element in "${array[@]}"
+	for element in ${array[@]}
 	do 
 		PACKAGE="${element}"
 		PKG_INFO_URL="https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=$PACKAGE"
