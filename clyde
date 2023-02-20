@@ -46,13 +46,6 @@ function clone_aur_pkg () {
 	       echo "Package ${PACKAGE} not found"
 	       exit
 	else
-		IS_UP_TO_DATE=$(check_version "$PKG_INFO_URL")
-		if [ "${IS_UP_TO_DATE}" = 0 ]
-		then
-			echo "Package already up to date"
-			exit
-		fi
-
 		cd "$CLYDE_TMP" || exit
 		read -r -p "Install ${PACKAGE}? [y/N]: " OPTION
 		if [[ "$OPTION" == "n" || "$OPTION" == "N" ]]
