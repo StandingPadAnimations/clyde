@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CLYDE_TMP=`mktemp -d`
+CLYDE_TMP=$(mktemp -d)
 SUDO=sudo
 PACKAGE="$2"
 
@@ -75,7 +75,7 @@ function upgrade_pkgs () {
 	then
 		clone_aur_pkg
 	fi
-	LOCAL_PKGS=$(pacman -Qm | cut -f 1 -d " ") # not technically accurate, but accurate enough
+	LOCAL_PKGS=$(pacman -Qqm) # not technically accurate, but accurate enough
 	AMOUNT_UPDATED=0
 	array=("$LOCAL_PKGS")
 	for element in ${array[@]}
