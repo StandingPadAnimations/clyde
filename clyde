@@ -106,15 +106,20 @@ if [[ "${1-}" =~ ^-*h(elp)?$ ]]; then
 fi
 
 cd "$HOME" || exit
-if [[ "$1" = "install" || "$1" = "ins" ]] 
-then
-	clone_aur_pkg
-elif [[ "$1" = "upgrade" || "$1" = "upg" ]]
-then
-	upgrade_pkgs
-elif [[ "$1" = "yeet" || "$1" = "remove " ||  "$1" = "rm" ]] 
-then 
-	$SUDO pacman -Rn "$PACKAGE"
-else
-	echo "Unreconized argument!"
-fi
+case "$1" in 
+	"install"|"ins")
+		clone_aur_pkg
+	;;
+
+	"yeet"|"remove"|"rm")
+		$SUDO pacman -Rn "$PACKAGE"
+	;;
+
+	"upgrade"|"upg")
+		upgrade_pkgs
+	;;
+
+	*)
+		echo "Unreconized argument!"
+	;;
+esac
