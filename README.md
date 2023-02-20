@@ -7,7 +7,13 @@ Most AUR helpers attempt to act like pacman in many ways, which some people don'
 Clyde attempts to fix this by acting as a simple bash script that can easily be extended but also act completely different from pacman to reinforce the fact that the AUR is a different set of repos.
 
 ## How to install
-Just add the bash script to your path, it's that easy. Alternatively, you can use the [AUR package](https://aur.archlinux.org/packages/clyde-aur-git), `clyde-aur-git`
+First install `community/jq` with pacman, that's Clyde's main dependency
+```sh
+sudo pacman -S jq
+```
+Then Just add the bash script to your path, it's that easy. 
+
+Alternatively, you can use the [AUR package](https://aur.archlinux.org/packages/clyde-aur-git), `clyde-aur-git`, which handles dependencies
 
 ## How to use
 * `install`/`ins` : Install a package
