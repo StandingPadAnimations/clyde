@@ -47,14 +47,14 @@ function check_version () {
 }
 
 function clone_aur_pkg () {
-	PKG_GIT_URL="https://aur.archlinux.org/$2.git"
-	PKG_INFO_URL="https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=$2"
+	PKG_GIT_URL="https://aur.archlinux.org/$1.git"
+	PKG_INFO_URL="https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=$1"
 	OPTION="n"
 
 	# Check if package exists
 	if curl -s --request GET "$PKG_INFO_URL" | grep '"resultcount":0' > /dev/null
 	then
-	       echo "Package ${2} not found"
+	       echo "Package ${1} not found"
 	       exit
 	else
 		cd "$CLYDE_TMP" || exit
@@ -71,8 +71,7 @@ function clone_aur_pkg () {
 function upgrade_pkgs () {
 	if [ "$PACKAGE" != "" ]
 	then
-		clone_aur_pkg
-		exit
+		clone_aur_pkg "$PACKAGE"
 	fi
 	LOCAL_PKGS=$(pacman -Qqm) # not technically accurate, but accurate enough
 	AMOUNT_UPDATED=0
