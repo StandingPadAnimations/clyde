@@ -9,14 +9,15 @@ function build_pkg () {
 	cd "$2" || exit
 	$EDITOR "$CLYDE_TMP/$2/PKGBUILD"
 	#recursive installation of AUR dependencies not found in the normal arch repos
-	for word in $(cat "$CLYDE_TMP/$2/PKGBUILD" | grep "depends" | awk -F '[()]' '{gsub(/"/,"",$2); print $2}'); do
+	for word in $(curl "https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=$2" | jq -r '.results[0].Depends[]'); do
 		#removes version bounds, e.g package>=3.10
-		local word1=$(echo $word | awk -F'[<=>]' '{print $1}')
+		local word1
+		word1=$(echo "$word" | awk -F'[<=>]' '{print $1}')
 		#checks if the package exists in arch repos
-		if ! pacman -Si $word1 2>/dev/null 1>/dev/null
+		if ! pacman -Si "$word1" 2>/dev/null 1>/dev/null
 		then
 			#checks if its already installed on the local system
-			if ! pacman -Qi $word1 2>/dev/null 1>/dev/null
+			if ! pacman -Qi "$word1" 2>/dev/null 1>/dev/null
 			then
 				echo "Detected package $word1 is not in arch repos, now we just need to install it"
 				#$SUDO pacman -S "$word"
