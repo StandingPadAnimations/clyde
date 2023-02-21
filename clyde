@@ -6,8 +6,19 @@ PACKAGE="$2"
 
 function build_pkg () {
 	git clone "$1" # clone
-	cd "$PACKAGE" || exit
-	$EDITOR "$CLYDE_TMP/$PACKAGE/PKGBUILD"
+	cd "$2" || exit
+	$EDITOR "$CLYDE_TMP/$2/PKGBUILD"
+	#recursive installation of AUR dependencies not found in the normal arch repos
+	for word in $(cat "$CLYDE_TMP/$2/PKGBUILD" | grep "depends" | awk -F '[()]' '{gsub(/"/,"",$2); print $2}'); do
+		local word1=$(echo $word | awk -F'[<=>]' '{print $1}')
+		if ! pacman -Si $word1 2>/dev/null 1>/dev/null
+		then
+			echo "Detected package $word1 is not in arch repos, now we just need to install it"
+			#$SUDO pacman -S "$word"
+			clone_aur_pkg "$word1"
+		fi
+	done
+	
 	makepkg -si
 }
 
@@ -30,24 +41,24 @@ function check_version () {
 }
 
 function clone_aur_pkg () {
-	PKG_GIT_URL="https://aur.archlinux.org/$PACKAGE.git"
-	PKG_INFO_URL="https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=$PACKAGE"
+	PKG_GIT_URL="https://aur.archlinux.org/$1.git"
+	PKG_INFO_URL="https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=$1"
 	OPTION="n"
 
 	# Check if package exists
 	if curl -s --request GET "$PKG_INFO_URL" | grep '"resultcount":0' > /dev/null
 	then
-	       echo "Package ${PACKAGE} not found"
+	       echo "Package ${1} not found"
 	       exit
 	else
 		cd "$CLYDE_TMP" || exit
-		read -r -p "Install ${PACKAGE}? [y/N]: " OPTION
+		read -r -p "Install ${1}? [y/N]: " OPTION
 		if [[ "$OPTION" == "n" || "$OPTION" == "N" ]]
 		then
 			echo "Canceled by the user! Exiting..."
 		fi
 
-		build_pkg "$PKG_GIT_URL"
+		build_pkg "$PKG_GIT_URL" "${1}"
 	fi
 }
 
@@ -89,7 +100,7 @@ fi
 cd "$HOME" || exit
 case "$1" in
 	"install"|"ins")
-		clone_aur_pkg
+		clone_aur_pkg "$PACKAGE"
 	;;
 
 	"yeet"|"remove"|"rm")
