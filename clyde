@@ -72,6 +72,7 @@ function upgrade_pkgs () {
 	if [ "$PACKAGE" != "" ]
 	then
 		clone_aur_pkg
+		exit
 	fi
 	LOCAL_PKGS=$(pacman -Qqm) # not technically accurate, but accurate enough
 	AMOUNT_UPDATED=0
