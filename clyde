@@ -119,6 +119,10 @@ case "$1" in
 		upgrade_pkgs
 	;;
 
+	"clean"|"cl")
+		$SUDO pacman -Sc
+	;;
+
 	*)
 		echo "Unreconized argument!"
 	;;

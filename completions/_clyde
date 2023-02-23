@@ -17,7 +17,8 @@ _clyde() {
         _values "clyde COMMAND" \
           "install[Install a package]" \
           "remove[Remove a package]" \
-          "upgrade[Upgrade]"
+          "upgrade[Upgrade]" \
+          "clean[Clean the Pacman Cache]"
       ;;
     (args)
       case $line[1] in
