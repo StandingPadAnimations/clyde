@@ -1,3 +1,5 @@
+## No longer maintained, use [aurutils](https://github.com/AladW/aurutils) instead, it's way better
+
 # Clyde
 A basic AUR helper written in less than 200 lines of bash code
 
